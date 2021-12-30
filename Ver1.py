@@ -39,14 +39,18 @@ c = Client()
 #print(c.send("exchange_info"))
 
 def server_time():
-	time=c.send("time")
-	t=time[1]
-	t=str(t['serverTime'])
-	t=t[:-3]
-	epoch_time=int(t)
-	datetime_time = datetime.datetime.fromtimestamp(epoch_time)
-	print(datetime_time)
-	return datetime_time
+    try:
+    	url='https://api.wazirx.com/sapi/v1/time'
+    	r=requests.get(url)
+    	r=r.json()
+    	t=str(r['serverTime'])
+    	t=t[:-3]
+    	epoch_time=int(t)
+    	datetime_time = datetime.datetime.fromtimestamp(epoch_time)
+    	return datetime_time
+    except KeyError:
+    	return server_time()
+    
 
 
 
@@ -72,7 +76,7 @@ def marketstatus():
 			cryptomat=np.vstack((cryptomat, temp))
 		i=i+1
 		#print(cryptomat)
-marketstatus()
+#marketstatus()
 
 def marketstatus2():
 	url="https://api.wazirx.com/api/v2/market-status"
@@ -89,7 +93,23 @@ def marketstatus2():
 			temp2=np.vstack((temp2,temp))
 		i=i+1
 	cryptomat=np.hstack((cryptomat,temp2))
-	print(cryptomat)
 
-marketstatus2()
+#marketstatus2()
+#print(cryptomat)
+
+def marketstatus3():
+	url="https://api.wazirx.com/api/v2/market-status"
+	r=requests.get(url)
+	r=r.json()
+	list=r['markets']
+	global cryptomat
+	#print(len(list))
+	#print((list[0]).keys())
+	total=len(list)
+	i=40
+	print(i,(list[i])['baseMarket'], (list[i])['quoteMarket'],(list[i])['last'])
 	
+while (1):
+    #marketstatus3()
+    print(server_time())
+
