@@ -20,10 +20,9 @@ def server_time():
     	return t
     except KeyError:
     	return server_time()
-    	
-cryptomat=np.array(['S.No.', 'baseAsset', 'quoteAsset', server_time()])
 
-percentdata=np.array('S.No.', 'baseAsset', 'quoteAsset', 'percentchange')
+currenttime=0
+    	
 
 def epoch(t):
 	datetime_time = datetime.datetime.fromtimestamp(t)
@@ -32,7 +31,14 @@ def epoch(t):
 def totimestamp(t):
 	datetime_time=datetime.datetime.timestamp(t)
 	return datetime_time
+	
+def settime():
+	global currenttime
+	currenttime=server_time()
 
+cryptomat=np.array(['S.No.', 'baseAsset', 'quoteAsset',server_time()])
+
+percentdata=np.array([currenttime])
 
 def send(text):
 	url='https://api.telegram.org/bot5043060299:AAF4lNBzk_7N01gNDslg1YjOPBYq9ht0WlE/sendMessage?chat_id='+channel+'&text='+str(text)
@@ -45,11 +51,13 @@ def market():
 		r= requests.get(url)
 		r=r.json()
 		global cryptomat
+		global percentdata
 		i=0
 		while(i!=len(r)):
 			temp= np.array([i+1,r[i]['baseAsset'],r[i]['quoteAsset'],r[i]['lastPrice']])
 			cryptomat=np.vstack((cryptomat, temp))
 			i=i+1
+		percentdata=np.delete(cryptomat,3,1)
 	except KeyError:
 		market()
 		
@@ -59,7 +67,8 @@ def pricefetch():
 		r= requests.get(url)
 		r=r.json()
 		global cryptomat
-		temp2= np.array([server_time()])
+		global percentdata
+		temp2= np.array([currenttime])
 		i=0
 		while(i!=len(r)):
 			temp=np.array([r[i]['lastPrice']])
@@ -79,11 +88,11 @@ def csvw():
 
 
 
-market()
+#market()
 #print(cryptomat)
 #i=0
 #while(i!=50):
-pricefetch()
+#pricefetch()
 #	print(i)
 #	i=i+1
 #pricefetch()
@@ -94,15 +103,29 @@ pricefetch()
 #csvw()
 
 def percentcalc():
+	global percentdata
 	rows=len(cryptomat)
 	columns=len(cryptomat[0])
 	i=1
+	temp2= np.array([currenttime])
 	while(i!=rows):
 		a=float(cryptomat[i][columns-1])
 		b=float(cryptomat[i][3])
 		per=((a-b)/b)*100
+		temp=np.array((per))
+		temp2=np.vstack([temp2, temp])
 		i=i+1
-		print(per)
+	percentdata=np.hstack([percentdata,temp2])
 	
 		
-percentcalc()
+def main():
+	market()
+	i=1
+	while(i!=4):
+		settime()
+		pricefetch()
+		percentcalc()
+		i=i+1
+	print(cryptomat)
+	print(percentdata)
+main()
