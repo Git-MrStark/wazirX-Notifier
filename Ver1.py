@@ -23,6 +23,8 @@ def server_time():
     	
 cryptomat=np.array(['S.No.', 'baseAsset', 'quoteAsset', server_time()])
 
+percentdata=np.array('S.No.', 'baseAsset', 'quoteAsset', 'percentchange')
+
 def epoch(t):
 	datetime_time = datetime.datetime.fromtimestamp(t)
 	return datetime_time
@@ -81,7 +83,7 @@ market()
 #print(cryptomat)
 #i=0
 #while(i!=50):
-#	pricefetch()
+pricefetch()
 #	print(i)
 #	i=i+1
 #pricefetch()
@@ -89,4 +91,18 @@ market()
 
 #datalog()
 
-csvw()
+#csvw()
+
+def percentcalc():
+	rows=len(cryptomat)
+	columns=len(cryptomat[0])
+	i=1
+	while(i!=rows):
+		a=float(cryptomat[i][columns-1])
+		b=float(cryptomat[i][3])
+		per=((a-b)/b)*100
+		i=i+1
+		print(per)
+	
+		
+percentcalc()
