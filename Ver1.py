@@ -16,7 +16,7 @@ def server_time():
     	r=requests.get(url)
     	r=r.json()
     	t=(r['serverTime'])
-    	t=t/1000
+    	t=int(t/1000)
     	return t
     except KeyError:
     	return server_time()
@@ -116,16 +116,34 @@ def percentcalc():
 		temp2=np.vstack([temp2, temp])
 		i=i+1
 	percentdata=np.hstack([percentdata,temp2])
-	
+
+def percentcheck():
+	i=0
+	l1= percentdata[0,3:]
+	while(i!=len(l1)):
+		if((currenttime)-float(l1[i])<=30):
+			break
+	print(percentdata[:,i+3])
 		
+
+
+def deleter():
+	global cryptomat
+	global percentdata
+	cryptomat=np.delete(cryptomat,3,1)
+	percentdata= np.delete(percentdata,3,1)
+	
+				
 def main():
 	market()
 	i=1
-	while(i!=4):
+	while(i!=1000):
 		settime()
 		pricefetch()
 		percentcalc()
+		t=epoch(currenttime)
+		if(int(t.strftime('%M'))%1==0):
+			percentcheck()
 		i=i+1
-	print(cryptomat)
-	print(percentdata)
+	
 main()
